@@ -99,6 +99,8 @@ public class NoBlock : BasePlugin
     // This is called upon just after the player spawns
     private void PlayerSpawnNextFrame(CCSPlayerController player, CHandle<CCSPlayerPawn> pawn)
     {
+        if (!player.IsValid || !pawn.IsValid)
+            return;
         // Changes the player's collision to 16, allowing the player to pass through other players while still take damage from bullets and knife attacks
         pawn.Value.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
 
