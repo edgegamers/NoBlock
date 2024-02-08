@@ -99,7 +99,7 @@ public class NoBlock : BasePlugin
     // This is called upon just after the player spawns
     private void PlayerSpawnNextFrame(CCSPlayerController player, CHandle<CCSPlayerPawn> pawn)
     {
-        if (!player.IsValid || !pawn.IsValid)
+        if (!player.IsValid || !pawn.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
             return;
         // Changes the player's collision to 16, allowing the player to pass through other players while still take damage from bullets and knife attacks
         pawn.Value.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
@@ -114,31 +114,6 @@ public class NoBlock : BasePlugin
         collisionRulesChanged.Invoke(pawn.Value.Handle);
     }
 }
-
-
-
-// The IsValid class is used for validating entities
-internal static class IsValid
-{
-    // Returns true if the player's index is valid
-    public static bool PlayerIndex(uint playerIndex)
-    {
-        // If the player's index is 0 then execute this section
-        if(playerIndex == 0)
-        {
-            return false;
-        }
-
-        // If the client's index value is not within the range it should be then execute this section
-        if(!(1 <= playerIndex && playerIndex <= Server.MaxPlayers))
-        {
-            return false;
-        }
-
-        return true;
-    }
-}
-
 
 
 // NOTE:
