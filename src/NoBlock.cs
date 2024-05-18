@@ -31,16 +31,16 @@ using CounterStrikeSharp.API.Modules.Utils;
 namespace NoBlock;
 
 // Defines the minimum version of CounterStrikeSharp required in order to run this plugin on the server 
-[MinimumApiVersion(96)]
+[MinimumApiVersion(233)]
 
 // Specifies our main class, this should match the name of the namespace
 public class NoBlock : BasePlugin
 {
     // The retrievable information about the plugin itself
     public override string ModuleName => "[Custom] No Block";
-    public override string ModuleAuthor => "Manifest @Road To Glory & WD-";
+    public override string ModuleAuthor => "Manifest @Road To Glory & WD- & Forked by EdgeGamers Organization";
     public override string ModuleDescription => "Allows for players to walk through each other without being stopped due to colliding.";
-    public override string ModuleVersion => "V. 1.0.1 [Beta]";
+    public override string ModuleVersion => "1.0.2";
 
     // Sets the correct offset data for our collision rules change in accordance with the server's operating system
     private readonly WIN_LINUX<int> OnCollisionRulesChangedOffset = new WIN_LINUX<int>(173, 172);
@@ -66,7 +66,7 @@ public class NoBlock : BasePlugin
     private HookResult Event_PlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         // Finds and validates the CCSPlayerController, despite it being referenced as "Userid" it is in fact the CCSPlayerController
-        if (!@event.Userid.IsValid)
+        if (@event.Userid == null)
         {
             return HookResult.Continue;
         }
@@ -99,19 +99,21 @@ public class NoBlock : BasePlugin
     // This is called upon just after the player spawns
     private void PlayerSpawnNextFrame(CCSPlayerController player, CHandle<CCSPlayerPawn> pawn)
     {
-        if (!player.IsValid || !pawn.IsValid)
-            return;
-        // Changes the player's collision to 16, allowing the player to pass through other players while still take damage from bullets and knife attacks
-        pawn.Value.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
+        if (pawn.Value is not null)
+        {
+            // Changes the player's collision to 16, allowing the player to pass through other players while still take damage from bullets and knife attacks
+            pawn.Value.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
 
-        // Changes the player's CollisionAttribute to the collision type used for dissolving objects 
-        pawn.Value.Collision.CollisionAttribute.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
+            // Changes the player's CollisionAttribute to the collision type used for dissolving objects 
+            pawn.Value.Collision.CollisionAttribute.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
 
-        // Updates the CollisionRulesChanged for the specific player
-        VirtualFunctionVoid<nint> collisionRulesChanged = new VirtualFunctionVoid<nint>(pawn.Value.Handle, OnCollisionRulesChangedOffset.Get());
+            // Updates the CollisionRulesChanged for the specific player
+            VirtualFunctionVoid<nint> collisionRulesChanged = new VirtualFunctionVoid<nint>(pawn.Value.Handle, OnCollisionRulesChangedOffset.Get());
 
-        // Invokes the updated CollisionRulesChanged information to ensure the player's collision is correctly set
-        collisionRulesChanged.Invoke(pawn.Value.Handle);
+            // Invokes the updated CollisionRulesChanged information to ensure the player's collision is correctly set
+            collisionRulesChanged.Invoke(pawn.Value.Handle);
+        }
+        return;
     }
 }
 
